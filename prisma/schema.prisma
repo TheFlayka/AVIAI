@@ -13,6 +13,7 @@ model User {
   password String
   createdAt DateTime @default(now())
   deletedAt DateTime?
+  refreshToken String?
   cafes Cafe[]
 }
 

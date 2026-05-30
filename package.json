@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts",
     "build": "tsc",
     "start": "bun run ./src/index.ts",
     "lint": "eslint .",
@@ -31,6 +31,7 @@
     "dotenv": "^17.4.2",
     "hono": "^4.12.23",
     "ioredis": "^5.11.0",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "valibot": "^1.4.1"
   }
 }
