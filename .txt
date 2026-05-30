@@ -1,0 +1,10 @@
+1) Prisma:
+  Connection with Docker yes!
+  Docker can save database yes!
+  It will not replace old database yes!
+  Create All Schemas yes!
+2) Redis:
+  Connection with Docker
+  Create Tasks and Check It
+  Create Wokrers(BullMQ)
+  Create scripts for running both files(index and workers)

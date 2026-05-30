@@ -6,3 +6,13 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Review {
+  id Int @id @default(autoincrement()) 
+  username String
+  text String
+  rating Int
+  createdAt DateTime @default(now())
+  aiAnswer String?
+  status String @default("pending")
+}
