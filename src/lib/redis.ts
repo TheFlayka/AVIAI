@@ -3,7 +3,7 @@ import { Redis } from 'ioredis'
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379')
 
-console.log(`[Redis] Попытка подключения к ${REDIS_HOST}:${REDIS_PORT}...`)
+console.log(`[Redis] Trying to connect to ${REDIS_HOST}:${REDIS_PORT}...`)
 
 export const redisConnection = new Redis({
   host: REDIS_HOST,
@@ -12,9 +12,9 @@ export const redisConnection = new Redis({
 })
 
 redisConnection.on('connect', () => {
-  console.log('🔴 [Redis] Успешно подключено к Docker-контейнеру Redis!')
+  console.log('🔴 [Redis] Successfully connected to Docker container Redis!')
 })
 
 redisConnection.on('error', (error) => {
-  console.error('❌ [Redis] Ошибка подключения:', error.message)
+  console.error('❌ [Redis] Connection error:', error.message)
 })

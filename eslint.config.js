@@ -5,15 +5,20 @@ import prettierConfig from 'eslint-config-prettier'
 
 export default defineConfig([
   {
+    ignores: ['node_modules', 'dist', 'generated'],
+  },
+  {
     files: ['**/*.{ts,js}'],
-    ignores: ['node_modules', 'dist'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
-      globals: globals.node,
+      globals: {
+        ...globals.node,
+        Bun: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
@@ -21,6 +26,7 @@ export default defineConfig([
     rules: {
       ...tseslint.configs.recommended.rules,
       ...prettierConfig.rules,
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
     settings: {
       'import/resolver': {

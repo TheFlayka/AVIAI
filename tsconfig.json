@@ -25,6 +25,14 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Aliases
+    "baseUrl": ".",
+    "paths": {
+      "#lib/*": ["src/lib/*"],
+      "#modules/*": ["src/modules/*"],
+      "#workers/*": ["src/workers/*"]
+    }
   }
 }
