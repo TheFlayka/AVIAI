@@ -1,8 +1,12 @@
 // Hono
 import { Context } from 'hono'
+import { setCookie } from 'hono/cookie'
 
 // Models
-import { registerUser } from './user.model'
+import { loginUser, registerUser } from './users.model'
+
+// Middlewares
+import type { AuthEnv } from './users.middlewares'
 
 export async function registerUserController(c: Context) {
   try {
@@ -12,6 +16,42 @@ export async function registerUserController(c: Context) {
     console.error('❌ Error occurred while registering user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при регистрации пользователя' },
+      500,
+    )
+  }
+}
+
+export async function loginUserController(c: Context<AuthEnv>) {
+  try {
+    const result = await loginUser(await c.req.json())
+    if (result.success === false) {
+      return c.json(result, result.status)
+    }
+    const expiryDate30Days = new Date()
+    expiryDate30Days.setDate(expiryDate30Days.getDate() + 30)
+
+    const expiryDate = new Date()
+    expiryDate.setMinutes(expiryDate.getMinutes() + 15)
+
+    setCookie(c, 'access_token', result.data.access, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 15 * 60,
+    })
+    setCookie(c, 'refresh_token', result.data.refresh, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60,
+    })
+
+    const { data, ...resultDone } = result
+    return c.json(resultDone, result.status)
+  } catch (error) {
+    console.error('❌ Error occurred while logging in user:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при авторизаций пользователя', data: error },
       500,
     )
   }
