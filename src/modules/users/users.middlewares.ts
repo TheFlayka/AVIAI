@@ -1,6 +1,6 @@
 // Hono
 import { Context, type Next } from 'hono'
-import { verify } from 'hono/jwt'
+import { verify, decode } from 'hono/jwt'
 import { getCookie } from 'hono/cookie'
 
 // Prisma
@@ -27,7 +27,7 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
       return await next()
     }
 
-    // Verify JWT Token
+    // Verify token from cookies
     const token = getCookie(c, 'access_token')
     if (!token) {
       console.warn('⚠️ [Auth Middleware]: Token not found in cookies')
@@ -41,16 +41,21 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
       )
     }
 
+    // Check if JWT_SECRET is defined in environment variables
     const secret = process.env.JWT_SECRET
     if (!secret) {
       console.error('❌ [CRITICAL]: JWT_SECRET not found in environment variables')
       return c.json({ success: false, message: 'Ошибка конфигурации сервера' }, 500)
     }
 
-    const payloadAccess = await verify(token, secret, 'HS256')
-    const userId = Number(payloadAccess.userId)
+    // Verify JWT Token
+    await verify(token, secret, 'HS256')
 
-    if (!userId) {
+    // Decode token to get user ID
+    const { payload } = decode(token)
+    const userId = Number(payload.sub)
+
+    if (!userId || Number.isNaN(userId)) {
       return c.json({ success: false, status: 401, message: 'Невалидная структура токена' }, 401)
     }
 

@@ -13,7 +13,7 @@ import {
 } from './users.validations'
 
 // Controllers
-import { loginUserController, registerUserController } from './users.controllers'
+import { getUserController, loginUserController, registerUserController } from './users.controllers'
 
 // Middlewares
 import { authMiddleware } from './users.middlewares'
@@ -22,7 +22,7 @@ app.post('/', sValidator('json', registrationSchema), registerUserController)
 app.use('/profile/*', authMiddleware)
 
 app.post('/profile/login', sValidator('json', loginSchema), loginUserController)
-app.get('/profile')
+app.get('/profile', getUserController)
 app.put('/profile', sValidator('json', optionalRegistrationSchema))
 app.put('/profile/password', sValidator('json', passwordSchema))
 app.delete('/profile')

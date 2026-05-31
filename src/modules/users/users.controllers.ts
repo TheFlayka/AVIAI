@@ -56,3 +56,19 @@ export async function loginUserController(c: Context<AuthEnv>) {
     )
   }
 }
+
+export async function getUserController(c: Context) {
+  try {
+    const { password, refreshToken, deletedAt, id, ...userInfo } = c.get('user')
+    return c.json(
+      { status: 200, success: true, message: 'Данные пользователя получены', data: userInfo },
+      200,
+    )
+  } catch (error) {
+    console.error('❌ Error occurred while getting user:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при получении данных пользователя' },
+      500,
+    )
+  }
+}
