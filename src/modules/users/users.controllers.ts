@@ -3,7 +3,7 @@ import { Context } from 'hono'
 import { setCookie } from 'hono/cookie'
 
 // Models
-import { loginUser, registerUser } from './users.model'
+import { changeUser, loginUser, registerUser } from './users.model'
 
 // Middlewares
 import type { AuthEnv } from './users.middlewares'
@@ -68,6 +68,19 @@ export async function getUserController(c: Context) {
     console.error('❌ Error occurred while getting user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при получении данных пользователя' },
+      500,
+    )
+  }
+}
+
+export async function changeUserController(c: Context) {
+  try {
+    const result = await changeUser(c.get('userId'), await c.req.json(), c.get('user'))
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ Error occurred while changing user:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при изменении данных пользователя' },
       500,
     )
   }

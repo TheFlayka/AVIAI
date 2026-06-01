@@ -18,3 +18,5 @@ export interface IUser extends IBaseUser {
   refreshToken: string | null
   cafes?: Array<{}> // TODO: add cafe type
 }
+
+export type UpdateUserObject = Partial<IRegisterUser>

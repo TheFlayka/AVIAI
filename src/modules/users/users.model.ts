@@ -5,7 +5,7 @@ import { prisma } from '#lib/prisma'
 import { sign } from 'hono/jwt'
 
 // Types
-import type { IRegisterUser, IUser } from './users.types'
+import type { IRegisterUser, IUser, UpdateUserObject } from './users.types'
 
 export const registerUser = async (body: IRegisterUser) => {
   try {
@@ -95,6 +95,57 @@ export const loginUser = async (body: IUser) => {
       status: 500,
       success: false,
       message: 'Ошибка при авторизаций пользователя',
+      data: error,
+    } as const
+  }
+}
+
+export const changeUser = async (id: number, body: UpdateUserObject, user: IUser) => {
+  try {
+    // Check Username change
+    if (body.username) {
+      // If user wants to change username, they must provide current password for verification
+      if (!body.password)
+        return {
+          status: 400,
+          success: false,
+          message: 'Для изменения логина необходимо указать текущий пароль',
+        } as const
+      const validPassword: boolean = await Bun.password.verify(body.password, user.password)
+      if (!validPassword)
+        return { status: 400, success: false, message: 'Неправильный пароль' } as const
+
+      // Check if new username is the same as the old one
+      if (body.username === user.username)
+        return { status: 400, success: false, message: 'Новый логин совпадает со старым' } as const
+
+      // Check if new username already exists
+      const loginExists = await prisma.user.findUnique({
+        where: { username: body.username },
+      })
+      if (loginExists)
+        return {
+          status: 409,
+          success: false,
+          message: 'Пользователь с таким логином  уже существует',
+        } as const
+    }
+
+    const { password, ...updateBody } = body
+
+    await prisma.user.update({
+      where: { id, deletedAt: null },
+      data: {
+        ...updateBody,
+      },
+    })
+
+    return { status: 200, success: true, message: 'Данные пользователя изменены' } as const
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message: 'Ошибка при получений данных пользователя',
       data: error,
     } as const
   }
