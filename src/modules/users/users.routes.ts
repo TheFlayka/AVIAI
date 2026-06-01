@@ -19,6 +19,7 @@ import {
   deleteUserController,
   getUserController,
   loginUserController,
+  logoutUserController,
   registerUserController,
 } from './users.controllers'
 
@@ -36,7 +37,7 @@ app.use('/profile/*', authMiddleware)
 app.get('/profile', getUserController)
 app.put('/profile', sValidator('json', optionalUserSchema), changeUserController)
 app.put('/profile/password', sValidator('json', passwordSchema), changePasswordUserController)
-app.post('/profile/logout')
+app.post('/profile/logout', logoutUserController)
 app.delete('/profile', deleteUserController)
 app.post('/profile/recovery')
 

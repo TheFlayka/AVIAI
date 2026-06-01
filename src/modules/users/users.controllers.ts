@@ -1,9 +1,9 @@
 // Hono
 import { Context } from 'hono'
-import { setCookie } from 'hono/cookie'
+import { deleteCookie, setCookie } from 'hono/cookie'
 
 // Models
-import { changePasswordUser, changeUser, deleteUser, loginUser, registerUser } from './users.model'
+import { changePasswordUser, changeUser, deleteUser, loginUser, logoutUser, registerUser } from './users.model'
 
 // Middlewares
 import type { AuthEnv } from './users.middlewares'
@@ -106,5 +106,19 @@ export async function deleteUserController(c: Context) {
   } catch (error) {
     console.error('❌ [Users] Error occurred while deleting user:', error)
     return c.json({ status: 500, success: false, message: 'Ошибка при удалении пользователя' }, 500)
+  }
+}
+
+export async function logoutUserController(c: Context) {
+  try {
+    const result = await logoutUser(c.get('userId'))
+
+    deleteCookie(c, 'access_token')
+    deleteCookie(c, 'refresh_token')
+
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Users] Error occurred while logging out user:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при выходе пользователя' }, 500)
   }
 }

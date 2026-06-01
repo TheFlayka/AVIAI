@@ -200,3 +200,20 @@ export const deleteUser = async (id: number) => {
     } as const
   }
 }
+
+export const logoutUser = async (id: number) => {
+  try {
+    await prisma.user.update({
+      where: { id, deletedAt: null },
+      data: { refreshToken: null },
+    })
+    return { status: 200, success: true, message: 'Пользователь успешно вышел' } as const
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message: 'Ошибка при выходе пользователя',
+      data: error,
+    } as const
+  }
+}
