@@ -20,3 +20,8 @@ export interface IUser extends IBaseUser {
 }
 
 export type UpdateUserObject = Partial<IRegisterUser>
+
+export interface IChangePassword {
+  oldPassword: string
+  newPassword: string
+}

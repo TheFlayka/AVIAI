@@ -14,6 +14,7 @@ import {
 
 // Controllers
 import {
+  changePasswordUserController,
   changeUserController,
   getUserController,
   loginUserController,
@@ -33,9 +34,9 @@ app.use('/profile/*', authMiddleware)
 // Get User, Change User, Change Password, Logout, Recovery
 app.get('/profile', getUserController)
 app.put('/profile', sValidator('json', optionalUserSchema), changeUserController)
-app.put('/profile/password', sValidator('json', passwordSchema))
-app.delete('/profile')
+app.put('/profile/password', sValidator('json', passwordSchema), changePasswordUserController)
 app.post('/profile/logout')
+app.delete('/profile')
 app.post('/profile/recovery')
 
 export default app

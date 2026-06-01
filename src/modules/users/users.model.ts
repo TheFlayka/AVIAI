@@ -5,7 +5,7 @@ import { prisma } from '#lib/prisma'
 import { sign } from 'hono/jwt'
 
 // Types
-import type { IRegisterUser, IUser, UpdateUserObject } from './users.types'
+import type { IChangePassword, IRegisterUser, IUser, UpdateUserObject } from './users.types'
 
 export const registerUser = async (body: IRegisterUser) => {
   try {
@@ -151,3 +151,34 @@ export const changeUser = async (id: number, body: UpdateUserObject, user: IUser
   }
 }
 
+export const changePasswordUser = async (id: number, body: IChangePassword, user: IUser) => {
+  try {
+    // Check if new password is the same as the old one
+    if (body.oldPassword === body.newPassword)
+      return { status: 400, success: false, message: 'Новый пароль совпадает со старым' } as const
+
+    // Verify old password
+    const validPassword: boolean = await Bun.password.verify(body.oldPassword, user.password)
+    if (!validPassword)
+      return { status: 400, success: false, message: 'Неправильный старый пароль' } as const
+
+    // Hash the new password
+    const passwordHash: string = await Bun.password.hash(body.newPassword)
+
+    await prisma.user.update({
+      where: { id, deletedAt: null },
+      data: {
+        password: passwordHash,
+        passwordChangedAt: new Date(),
+      },
+    })
+    return { status: 200, success: true, message: 'Пароль пользователя изменен' } as const
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message: 'Ошибка при изменении пароля пользователя',
+      data: error,
+    } as const
+  }
+}

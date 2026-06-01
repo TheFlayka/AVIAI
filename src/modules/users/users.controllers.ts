@@ -3,7 +3,7 @@ import { Context } from 'hono'
 import { setCookie } from 'hono/cookie'
 
 // Models
-import { changeUser, loginUser, registerUser } from './users.model'
+import { changePasswordUser, changeUser, loginUser, registerUser } from './users.model'
 
 // Middlewares
 import type { AuthEnv } from './users.middlewares'
@@ -81,6 +81,19 @@ export async function changeUserController(c: Context) {
     console.error('❌ [Users] Error occurred while changing user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при изменении данных пользователя' },
+      500,
+    )
+  }
+}
+
+export async function changePasswordUserController(c: Context) {
+  try {
+    const result = await changePasswordUser(c.get('userId'), await c.req.json(), c.get('user'))
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Users] Error occurred while changing user password:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при изменении пароля пользователя' },
       500,
     )
   }
