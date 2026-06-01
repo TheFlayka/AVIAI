@@ -3,7 +3,15 @@ import { Context } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 
 // Models
-import { changePasswordUser, changeUser, deleteUser, loginUser, logoutUser, registerUser } from './users.model'
+import {
+  changePasswordUser,
+  changeUser,
+  deleteUser,
+  loginUser,
+  logoutUser,
+  recoveryUser,
+  registerUser,
+} from './users.model'
 
 // Middlewares
 import type { AuthEnv } from './users.middlewares'
@@ -102,6 +110,10 @@ export async function changePasswordUserController(c: Context) {
 export async function deleteUserController(c: Context) {
   try {
     const result = await deleteUser(c.get('userId'))
+
+    deleteCookie(c, 'access_token')
+    deleteCookie(c, 'refresh_token')
+
     return c.json(result, result.status)
   } catch (error) {
     console.error('❌ [Users] Error occurred while deleting user:', error)
@@ -120,5 +132,18 @@ export async function logoutUserController(c: Context) {
   } catch (error) {
     console.error('❌ [Users] Error occurred while logging out user:', error)
     return c.json({ status: 500, success: false, message: 'Ошибка при выходе пользователя' }, 500)
+  }
+}
+
+export async function recoveryUserController(c: Context) {
+  try {
+    const result = await recoveryUser(await c.req.json())
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Users] Error occurred while recovering user:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при восстановлении аккаунта пользователя' },
+      500,
+    )
   }
 }

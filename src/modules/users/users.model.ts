@@ -5,7 +5,13 @@ import { prisma } from '#lib/prisma'
 import { sign } from 'hono/jwt'
 
 // Types
-import type { IChangePassword, IRegisterUser, IUser, UpdateUserObject } from './users.types'
+import type {
+  IBaseUser,
+  IChangePassword,
+  IRegisterUser,
+  IUser,
+  UpdateUserObject,
+} from './users.types'
 
 export const registerUser = async (body: IRegisterUser) => {
   try {
@@ -213,6 +219,36 @@ export const logoutUser = async (id: number) => {
       status: 500,
       success: false,
       message: 'Ошибка при выходе пользователя',
+      data: error,
+    } as const
+  }
+}
+
+export const recoveryUser = async (body: IBaseUser) => {
+  try {
+    // Check user in database and if user is deleted
+    const user = await prisma.user.findUnique({
+      where: { username: body.username },
+    })
+    if (!user) return { status: 404, success: false, message: 'Пользователь не найден' } as const
+    if (user.deletedAt === null)
+      return { status: 400, success: false, message: 'Аккаунт уже активен' } as const
+
+    // Verify password
+    const validPassword: boolean = await Bun.password.verify(body.password, user.password)
+    if (!validPassword) return { status: 400, success: false, message: 'Неверный пароль' } as const
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { deletedAt: null },
+    })
+
+    return { status: 200, success: true, message: 'Аккаунт успешно восстановлен' } as const
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message: 'Ошибка при восстановлении аккаунта пользователя',
       data: error,
     } as const
   }
