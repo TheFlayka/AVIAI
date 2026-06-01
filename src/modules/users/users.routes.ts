@@ -16,6 +16,7 @@ import {
 import {
   changePasswordUserController,
   changeUserController,
+  deleteUserController,
   getUserController,
   loginUserController,
   registerUserController,
@@ -36,7 +37,7 @@ app.get('/profile', getUserController)
 app.put('/profile', sValidator('json', optionalUserSchema), changeUserController)
 app.put('/profile/password', sValidator('json', passwordSchema), changePasswordUserController)
 app.post('/profile/logout')
-app.delete('/profile')
+app.delete('/profile', deleteUserController)
 app.post('/profile/recovery')
 
 export default app

@@ -59,7 +59,7 @@ export const loginUser = async (body: IUser) => {
 
     // Find user by username
     const user = await prisma.user.findUnique({
-      where: { username: body.username },
+      where: { username: body.username, deletedAt: null },
     })
     if (!user) return { status: 404, success: false, message: 'Пользователь не найден' } as const
 
@@ -178,6 +178,24 @@ export const changePasswordUser = async (id: number, body: IChangePassword, user
       status: 500,
       success: false,
       message: 'Ошибка при изменении пароля пользователя',
+      data: error,
+    } as const
+  }
+}
+
+export const deleteUser = async (id: number) => {
+  try {
+    await prisma.user.update({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date(), refreshToken: null },
+    })
+
+    return { status: 200, success: true, message: 'Пользователь удален' } as const
+  } catch (error) {
+    return {
+      status: 500,
+      success: false,
+      message: 'Ошибка при удалении пользователя',
       data: error,
     } as const
   }
