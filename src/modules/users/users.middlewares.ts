@@ -44,7 +44,7 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
     // Check if JWT_SECRET is defined in environment variables
     const secret = process.env.JWT_SECRET
     if (!secret) {
-      console.error('❌ [CRITICAL]: JWT_SECRET not found in environment variables')
+      console.error('❌ [CRITICAL] JWT_SECRET not found in environment variables')
       return c.json({ success: false, message: 'Ошибка конфигурации сервера' }, 500)
     }
 
@@ -76,7 +76,7 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
 
     await next()
   } catch (error) {
-    console.error('❌ [Auth Middleware Error]:', error)
+    console.error('❌ [Auth Middleware]:', error)
     return c.json(
       {
         success: false,

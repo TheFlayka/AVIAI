@@ -7,7 +7,7 @@ const app = new Hono()
 // Schemas
 import {
   loginSchema,
-  optionalRegistrationSchema,
+  optionalUserSchema,
   passwordSchema,
   registrationSchema,
 } from './users.validations'
@@ -23,12 +23,16 @@ import {
 // Middlewares
 import { authMiddleware } from './users.middlewares'
 
+// Create and Login User
 app.post('/', sValidator('json', registrationSchema), registerUserController)
+app.post('/profile/login', sValidator('json', loginSchema), loginUserController)
+
+// Auth Middleware
 app.use('/profile/*', authMiddleware)
 
-app.post('/profile/login', sValidator('json', loginSchema), loginUserController)
+// Get User, Change User, Change Password, Logout, Recovery
 app.get('/profile', getUserController)
-app.put('/profile', sValidator('json', optionalRegistrationSchema), changeUserController)
+app.put('/profile', sValidator('json', optionalUserSchema), changeUserController)
 app.put('/profile/password', sValidator('json', passwordSchema))
 app.delete('/profile')
 app.post('/profile/logout')

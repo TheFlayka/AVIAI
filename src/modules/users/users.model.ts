@@ -150,3 +150,4 @@ export const changeUser = async (id: number, body: UpdateUserObject, user: IUser
     } as const
   }
 }
+

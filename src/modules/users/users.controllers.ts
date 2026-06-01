@@ -13,7 +13,7 @@ export async function registerUserController(c: Context) {
     const report = await registerUser(await c.req.json())
     return c.json(report, report.status)
   } catch (error) {
-    console.error('❌ Error occurred while registering user:', error)
+    console.error('❌ [Users] Error occurred while registering user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при регистрации пользователя' },
       500,
@@ -49,7 +49,7 @@ export async function loginUserController(c: Context<AuthEnv>) {
     const { data, ...resultDone } = result
     return c.json(resultDone, result.status)
   } catch (error) {
-    console.error('❌ Error occurred while logging in user:', error)
+    console.error('❌ [Users] Error occurred while logging in user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при авторизаций пользователя', data: error },
       500,
@@ -65,7 +65,7 @@ export async function getUserController(c: Context) {
       200,
     )
   } catch (error) {
-    console.error('❌ Error occurred while getting user:', error)
+    console.error('❌ [Users] Error occurred while getting user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при получении данных пользователя' },
       500,
@@ -78,7 +78,7 @@ export async function changeUserController(c: Context) {
     const result = await changeUser(c.get('userId'), await c.req.json(), c.get('user'))
     return c.json(result, result.status)
   } catch (error) {
-    console.error('❌ Error occurred while changing user:', error)
+    console.error('❌ [Users] Error occurred while changing user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при изменении данных пользователя' },
       500,
