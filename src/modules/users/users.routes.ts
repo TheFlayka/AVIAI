@@ -7,21 +7,39 @@ const app = new Hono()
 // Schemas
 import {
   loginSchema,
-  optionalRegistrationSchema,
+  optionalUserSchema,
   passwordSchema,
   registrationSchema,
 } from './users.validations'
 
 // Controllers
-import { registerUserController } from './users.controllers'
+import {
+  changePasswordUserController,
+  changeUserController,
+  deleteUserController,
+  getUserController,
+  loginUserController,
+  logoutUserController,
+  recoveryUserController,
+  registerUserController,
+} from './users.controllers'
 
+// Middlewares
+import { authMiddleware } from './users.middlewares'
+
+// Create and Login User
 app.post('/', sValidator('json', registrationSchema), registerUserController)
-app.post('/profile/login', sValidator('json', loginSchema))
-app.get('/profile')
-app.put('/profile', sValidator('json', optionalRegistrationSchema))
-app.put('/profile/password', sValidator('json', passwordSchema))
-app.delete('/profile')
-app.post('/profile/logout')
-app.post('/profile/recovery')
+app.post('/profile/login', sValidator('json', loginSchema), loginUserController)
+
+// Auth Middleware
+app.use('/profile/*', authMiddleware)
+
+// Get User, Change User, Change Password, Logout, Recovery
+app.get('/profile', getUserController)
+app.put('/profile', sValidator('json', optionalUserSchema), changeUserController)
+app.put('/profile/password', sValidator('json', passwordSchema), changePasswordUserController)
+app.post('/profile/logout', logoutUserController)
+app.delete('/profile', deleteUserController)
+app.post('/profile/recovery', sValidator('json', loginSchema), recoveryUserController)
 
 export default app

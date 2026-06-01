@@ -28,11 +28,10 @@
     "noPropertyAccessFromIndexSignature": false,
 
     // Aliases
-    "baseUrl": ".",
     "paths": {
-      "#lib/*": ["src/lib/*"],
-      "#modules/*": ["src/modules/*"],
-      "#workers/*": ["src/workers/*"]
+      "#lib/*": ["./src/lib/*"],
+      "#modules/*": ["./src/modules/*"],
+      "#workers/*": ["./src/workers/*"]
     }
   }
 }

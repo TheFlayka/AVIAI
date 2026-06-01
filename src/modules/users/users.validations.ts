@@ -19,7 +19,7 @@ export const registrationSchema = v.object({
   surname: v.optional(v.string('Фамилия неправильного формата')),
 })
 
-export const optionalRegistrationSchema = v.optional(registrationSchema)
+export const optionalUserSchema = v.partial(registrationSchema)
 
 export const passwordSchema = v.object({
   oldPassword: v.pipe(
