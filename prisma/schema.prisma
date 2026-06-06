@@ -35,6 +35,8 @@ model CafePoint {
   id Int @id @default(autoincrement()) 
   cafeId Int
   cafe Cafe @relation(fields: [cafeId], references: [id])
+  yandexId String @unique
+  name String
   address String
   lat Float?
   lng Float?
