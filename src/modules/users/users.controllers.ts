@@ -11,15 +11,15 @@ import {
   logoutUser,
   recoveryUser,
   registerUser,
-} from './users.model'
+} from './users.models'
 
 // Middlewares
-import type { AuthEnv } from './users.middlewares'
+import type { AuthEnv } from '#shared/auth_middleware'
 
 export async function registerUserController(c: Context) {
   try {
-    const report = await registerUser(await c.req.json())
-    return c.json(report, report.status)
+    const result = await registerUser(await c.req.json())
+    return c.json(result, result.status)
   } catch (error) {
     console.error('❌ [Users] Error occurred while registering user:', error)
     return c.json(

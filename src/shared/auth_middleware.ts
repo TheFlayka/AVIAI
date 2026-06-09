@@ -7,7 +7,7 @@ import { getCookie } from 'hono/cookie'
 import { prisma } from '#lib/prisma'
 
 // Types
-import type { IUser } from './users.types'
+import type { IUser } from '#modules/users/users.types'
 
 export type AuthEnv = {
   Variables: {
