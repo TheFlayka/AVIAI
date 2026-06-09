@@ -25,8 +25,6 @@ export const createCafe = async (cafeData: ICafe, id: number) => {
     try {
       // Get url object from string
       const urlObj = new URL(cafeData.yandexMapsUrl.trim())
-      console.log(urlObj.hostname)
-      console.log(typeof urlObj.hostname)
 
       // Check Domain
       const allowedDomains = ['yandex.uz', 'yandex.ru', 'yandex.kz', 'yandex.com', 'yandex.by']
@@ -59,5 +57,32 @@ export const createCafe = async (cafeData: ICafe, id: number) => {
     return { success: true, status: 201, message: 'Кафе успешно создано' } as const
   } catch (error) {
     return { success: false, status: 500, message: 'Ошибка при создании кафе', error } as const
+  }
+}
+
+export const getCafes = async (id: number) => {
+  try {
+    const cafes = await prisma.cafe.findMany({
+      where: {
+        ownerId: id,
+      },
+      omit: {
+        deletedAt: true,
+      },
+    })
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Все кафе успешно получены',
+      data: cafes,
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при получении всех кафе',
+      error,
+    } as const
   }
 }
