@@ -86,3 +86,39 @@ export const getCafes = async (id: number) => {
     } as const
   }
 }
+
+export const getCafeById = async (userId: number, cafeId: number) => {
+  try {
+    const cafe = await prisma.cafe.findFirst({
+      where: {
+        id: cafeId,
+        ownerId: userId,
+      },
+      omit: {
+        deletedAt: true,
+      },
+    })
+
+    if (!cafe) {
+      return {
+        success: false,
+        status: 404,
+        message: 'Не удалось найти кафе',
+      } as const
+    }
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Кафе успешно получено',
+      data: cafe,
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при получении кафе',
+      error,
+    } as const
+  }
+}

@@ -12,12 +12,12 @@ app.use('/*', authMiddleware)
 import { cafeSchema } from './cafes.validations'
 
 // Controllers
-import { createCafeController, getCafesController } from './cafes.controllers'
+import { createCafeController, getCafeController, getCafesController } from './cafes.controllers'
 
 // Cafe Routes
 app.post('/', sValidator('json', cafeSchema), createCafeController)
 app.get('/', getCafesController)
-app.get('/:id')
+app.get('/:id', getCafeController)
 app.put('/:id')
 app.delete('/:id')
 app.post('/recovery/:id')
