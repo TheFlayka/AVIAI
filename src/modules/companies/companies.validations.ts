@@ -1,0 +1,21 @@
+import * as v from 'valibot'
+
+export const companySchema = v.object({
+  name: v.pipe(
+    v.string('Название заведения неправильного формата'),
+    v.minLength(2, 'Название заведения должно содержать от 2 до 100 символов'),
+    v.maxLength(100, 'Название заведения должно содержать от 2 до 100 символов'),
+  ),
+  description: v.pipe(
+    v.string('Описание заведения неправильного формата'),
+    v.minLength(10, 'Описание заведения должно содержать от 10 до 200 символов'),
+    v.maxLength(200, 'Описание заведения должно содержать от 10 до 200 символов'),
+  ),
+  yandexMapsUrl: v.pipe(
+    v.string('Url Яндекс Карт заведения неправильного формата'),
+    v.minLength(1, 'Url Яндекс Карт заведения должно содержать от 1 до 2000 символов'),
+    v.maxLength(2000, 'Url Яндекс Карт заведения должно содержать от 1 до 2000 символов'),
+  ),
+})
+
+export const optionalCompanySchema = v.partial(companySchema)

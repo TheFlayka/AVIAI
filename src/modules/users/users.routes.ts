@@ -25,7 +25,7 @@ import {
 } from './users.controllers'
 
 // Middlewares
-import { authMiddleware } from './users.middlewares'
+import { authMiddleware } from '#shared/auth_middleware'
 
 // Create and Login User
 app.post('/', sValidator('json', registrationSchema), registerUserController)

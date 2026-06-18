@@ -16,7 +16,7 @@ export interface IUser extends IBaseUser {
   createdAt: Date
   passwordChangedAt: Date
   refreshToken: string | null
-  cafes?: Array<{}> // TODO: add cafe type
+  companies?: Array<{}> // TODO: add company type
 }
 
 export type UpdateUserObject = Partial<IRegisterUser>
