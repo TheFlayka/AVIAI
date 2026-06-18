@@ -2,7 +2,7 @@
 import { Context } from 'hono'
 
 // Models
-import { createCompany, getCompanies, updateCompany } from './companies.models'
+import { createCompany, deleteCompany, getCompanies, updateCompany } from './companies.models'
 
 export async function createCompanyController(c: Context) {
   try {
@@ -41,10 +41,20 @@ export async function getCompanyController(c: Context) {
 
 export async function updateCompanyController(c: Context) {
   try {
-    const result = await updateCompany(c.get('company'), c.get('companyId'), await c.req.json())
+    const result = await updateCompany(c.get('companyId'), await c.req.json())
     return c.json(result, result.status)
   } catch (error) {
     console.error('❌ [Company] Error occurred while updating company:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при обновлений заведения' }, 500)
+  }
+}
+
+export async function deleteCompanyController(c: Context) {
+  try {
+    const result = await deleteCompany(c.get('companyId'))
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Company] Error occurred while deleting company:', error)
     return c.json({ status: 500, success: false, message: 'Ошибка при обновлений заведения' }, 500)
   }
 }

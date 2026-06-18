@@ -29,6 +29,7 @@ export async function findCompanyMiddleware(c: Context, next: Next) {
       where: {
         id: companyIdNum,
         ownerId: c.get('userId'),
+        deletedAt: null,
       },
       omit: {
         deletedAt: true,
@@ -36,11 +37,14 @@ export async function findCompanyMiddleware(c: Context, next: Next) {
     })
 
     if (!company) {
-      return {
-        success: false,
-        status: 404,
-        message: 'Не удалось найти заведение',
-      } as const
+      return c.json(
+        {
+          success: false,
+          status: 404,
+          message: 'Не удалось найти заведение',
+        },
+        404,
+      )
     }
 
     ;(c.set('companyId', companyIdNum), c.set('company', company))

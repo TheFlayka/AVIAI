@@ -16,6 +16,7 @@ import { companySchema, optionalCompanySchema } from './companies.validations'
 // Controllers
 import {
   createCompanyController,
+  deleteCompanyController,
   getCompaniesController,
   getCompanyController,
   updateCompanyController,
@@ -26,7 +27,7 @@ app.post('/', sValidator('json', companySchema), createCompanyController)
 app.get('/', getCompaniesController)
 app.get('/:id', getCompanyController)
 app.put('/:id', sValidator('json', optionalCompanySchema), updateCompanyController)
-app.delete('/:id')
+app.delete('/:id', deleteCompanyController)
 app.post('/recovery/:id')
 
 export default app

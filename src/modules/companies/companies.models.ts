@@ -87,7 +87,7 @@ export const getCompanies = async (id: number) => {
   }
 }
 
-export const updateCompany = async (company: ICompany, id: number, body: UpdateCompanyObject) => {
+export const updateCompany = async (id: number, body: UpdateCompanyObject) => {
   try {
     // Check URL in body
     if (body.yandexMapsUrl) {
@@ -132,6 +132,28 @@ export const updateCompany = async (company: ICompany, id: number, body: UpdateC
       success: false,
       status: 500,
       message: 'Ошибка при обновлений заведения',
+      error,
+    } as const
+  }
+}
+
+export const deleteCompany = async (id: number) => {
+  try {
+    await prisma.company.update({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    })
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Заведение успешно удалено',
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при удалении заведения',
       error,
     } as const
   }
