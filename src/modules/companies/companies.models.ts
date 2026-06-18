@@ -2,29 +2,29 @@
 import { prisma } from '#lib/prisma'
 
 // Types
-import type { ICafe } from './cafes.types'
+import type { ICompany, UpdateCompanyObject } from './companies.types'
 
-export const createCafe = async (cafeData: ICafe, id: number) => {
+export const createCompany = async (companyData: ICompany, id: number) => {
   try {
-    // Check if we`ve already the same cafe
-    const checkCafe = await prisma.cafe.findFirst({
+    // Check if we`ve already the same company
+    const checkCompany = await prisma.company.findFirst({
       where: {
-        name: cafeData.name,
+        name: companyData.name,
         ownerId: id,
       },
     })
-    if (checkCafe) {
+    if (checkCompany) {
       return {
         success: false,
         status: 400,
-        message: 'Кафе с таким названием уже существует',
+        message: 'Заведение с таким названием уже существует',
       } as const
     }
 
     // Check URL field
     try {
       // Get url object from string
-      const urlObj = new URL(cafeData.yandexMapsUrl.trim())
+      const urlObj = new URL(companyData.yandexMapsUrl.trim())
 
       // Check Domain
       const allowedDomains = ['yandex.uz', 'yandex.ru', 'yandex.kz', 'yandex.com', 'yandex.by']
@@ -45,24 +45,24 @@ export const createCafe = async (cafeData: ICafe, id: number) => {
       } as const
     }
 
-    await prisma.cafe.create({
+    await prisma.company.create({
       data: {
-        ...cafeData,
+        ...companyData,
         ownerId: id,
         createdAt: new Date(),
         deletedAt: null,
       },
     })
 
-    return { success: true, status: 201, message: 'Кафе успешно создано' } as const
+    return { success: true, status: 201, message: 'Заведение успешно создано' } as const
   } catch (error) {
-    return { success: false, status: 500, message: 'Ошибка при создании кафе', error } as const
+    return { success: false, status: 500, message: 'Ошибка при создании заведения', error } as const
   }
 }
 
-export const getCafes = async (id: number) => {
+export const getCompanies = async (id: number) => {
   try {
-    const cafes = await prisma.cafe.findMany({
+    const companies = await prisma.company.findMany({
       where: {
         ownerId: id,
       },
@@ -74,24 +74,28 @@ export const getCafes = async (id: number) => {
     return {
       success: true,
       status: 200,
-      message: 'Все кафе успешно получены',
-      data: cafes,
+      message: 'Все заведения успешно получены',
+      data: companies,
     } as const
   } catch (error) {
     return {
       success: false,
       status: 500,
-      message: 'Ошибка при получении всех кафе',
+      message: 'Ошибка при получении всех заведений',
       error,
     } as const
   }
 }
 
-export const getCafeById = async (userId: number, cafeId: number) => {
+export const updateCompany = async (
+  userId: number,
+  companyId: number,
+  body: UpdateCompanyObject,
+) => {
   try {
-    const cafe = await prisma.cafe.findFirst({
+    const company = await prisma.company.findFirst({
       where: {
-        id: cafeId,
+        id: companyId,
         ownerId: userId,
       },
       omit: {
@@ -99,25 +103,25 @@ export const getCafeById = async (userId: number, cafeId: number) => {
       },
     })
 
-    if (!cafe) {
+    if (!company) {
       return {
         success: false,
         status: 404,
-        message: 'Не удалось найти кафе',
+        message: 'Не удалось найти заведение',
       } as const
     }
 
     return {
       success: true,
       status: 200,
-      message: 'Кафе успешно получено',
-      data: cafe,
+      message: ' успешно получено',
+      data: company,
     } as const
   } catch (error) {
     return {
       success: false,
       status: 500,
-      message: 'Ошибка при получении кафе',
+      message: 'Ошибка при получении заведения',
       error,
     } as const
   }

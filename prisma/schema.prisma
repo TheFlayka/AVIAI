@@ -17,10 +17,10 @@ model User {
   deletedAt DateTime?
   passwordChangedAt DateTime
   refreshToken String?
-  cafes Cafe[]
+  companies Company[]
 }
 
-model Cafe {
+model Company {
   id Int @id @default(autoincrement()) 
   ownerId Int
   user User @relation(fields: [ownerId], references: [id])
@@ -29,13 +29,13 @@ model Cafe {
   yandexMapsUrl String
   createdAt DateTime @default(now())
   deletedAt DateTime?
-  points CafePoint[]
+  points CompanyPoint[]
 }
 
-model CafePoint {
+model CompanyPoint {
   id Int @id @default(autoincrement()) 
-  cafeId Int
-  cafe Cafe @relation(fields: [cafeId], references: [id])
+  companyId Int
+  company Company @relation(fields: [companyId], references: [id])
   yandexId String @unique
   name String
   address String
@@ -49,8 +49,8 @@ model CafePoint {
 
 model Review {
   id Int @id @default(autoincrement()) 
-  cafePointId Int
-  cafePoint CafePoint @relation(fields: [cafePointId], references: [id])
+  companyPointId Int
+  companyPoint CompanyPoint @relation(fields: [companyPointId], references: [id])
   usernameOfReviewer String
   text String
   rating Int

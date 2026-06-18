@@ -125,7 +125,7 @@ async function parseMap() {
     const response: GenerateContentResponse = await googleGenAI.models.generateContent({
       model: 'gemini-3.5-flash',
       contents:
-        'Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: cafeId(Int, now just set 1), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set to current time), deletedAt(DateTime, set null) and yandexId(String). Here is the HTML content: ' +
+        'Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: companyId(Int, now just set 1), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set to current time), deletedAt(DateTime, set null) and yandexId(String). Here is the HTML content: ' +
         pageContent,
     })
 
@@ -146,7 +146,7 @@ async function parseMap() {
 
       const parsedData = JSON.parse(cleanJsonString)
 
-      await prisma.cafePoint.createMany({
+      await prisma.companyPoint.createMany({
         data: parsedData,
         skipDuplicates: true,
       })
