@@ -2,7 +2,13 @@
 import { Context } from 'hono'
 
 // Models
-import { createCompany, deleteCompany, getCompanies, updateCompany } from './companies.models'
+import {
+  createCompany,
+  deleteCompany,
+  getCompanies,
+  recoveryCompany,
+  updateCompany,
+} from './companies.models'
 
 export async function createCompanyController(c: Context) {
   try {
@@ -56,5 +62,18 @@ export async function deleteCompanyController(c: Context) {
   } catch (error) {
     console.error('❌ [Company] Error occurred while deleting company:', error)
     return c.json({ status: 500, success: false, message: 'Ошибка при обновлений заведения' }, 500)
+  }
+}
+
+export async function recoveryCompanyController(c: Context) {
+  try {
+    const result = await recoveryCompany(c.get('companyId'))
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Company] Error occurred while recovering company:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при восстановлении заведения' },
+      500,
+    )
   }
 }

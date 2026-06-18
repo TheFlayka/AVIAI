@@ -22,7 +22,18 @@ export async function findCompanyMiddleware(c: Context, next: Next) {
     // Make it to Int
     const companyIdNum = parseInt(id, 10)
     if (isNaN(companyIdNum)) {
-      return c.json({ success: false, message: 'ID заведения должно быть числом' }, 400)
+      return c.json(
+        { success: false, status: 400, message: 'ID заведения должно быть числом' },
+        400,
+      )
+    }
+
+    // Exclude recovery endpoint from recovering
+    const path = c.req.path
+
+    if (path.includes('recovery')) {
+      c.set('companyId', companyIdNum)
+      return await next()
     }
 
     const company = await prisma.company.findFirst({

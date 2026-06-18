@@ -158,3 +158,39 @@ export const deleteCompany = async (id: number) => {
     } as const
   }
 }
+
+export const recoveryCompany = async (id: number) => {
+  try {
+    const check = await prisma.company.findFirst({
+      where: { id },
+    })
+
+    if (!check) return { success: false, status: 404, message: 'Не удалось найти заведение' } as const
+
+    if (check.deletedAt === null) {
+      return {
+        success: false,
+        status: 400,
+        message: 'Заведение уже активировано',
+      } as const
+    }
+
+    await prisma.company.update({
+      where: { id },
+      data: { deletedAt: null },
+    })
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Заведение успешно восстановлено',
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при восстановлении заведения',
+      error,
+    } as const
+  }
+}

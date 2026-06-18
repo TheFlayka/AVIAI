@@ -19,6 +19,7 @@ import {
   deleteCompanyController,
   getCompaniesController,
   getCompanyController,
+  recoveryCompanyController,
   updateCompanyController,
 } from './companies.controllers'
 
@@ -28,6 +29,6 @@ app.get('/', getCompaniesController)
 app.get('/:id', getCompanyController)
 app.put('/:id', sValidator('json', optionalCompanySchema), updateCompanyController)
 app.delete('/:id', deleteCompanyController)
-app.post('/recovery/:id')
+app.post('/:id/recovery', recoveryCompanyController)
 
 export default app
