@@ -11,20 +11,21 @@ import { findCompanyMiddleware } from './companies.middlewares'
 app.use('/:id/*', findCompanyMiddleware)
 
 // Schemas
-import { companySchema } from './companies.validations'
+import { companySchema, optionalCompanySchema } from './companies.validations'
 
 // Controllers
 import {
   createCompanyController,
   getCompaniesController,
   getCompanyController,
+  updateCompanyController,
 } from './companies.controllers'
 
 // Companies Routes
 app.post('/', sValidator('json', companySchema), createCompanyController)
 app.get('/', getCompaniesController)
 app.get('/:id', getCompanyController)
-app.put('/:id')
+app.put('/:id', sValidator('json', optionalCompanySchema), updateCompanyController)
 app.delete('/:id')
 app.post('/recovery/:id')
 

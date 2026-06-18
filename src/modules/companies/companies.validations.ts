@@ -17,3 +17,5 @@ export const companySchema = v.object({
     v.maxLength(2000, 'Url Яндекс Карт заведения должно содержать от 1 до 2000 символов'),
   ),
 })
+
+export const optionalCompanySchema = v.partial(companySchema)

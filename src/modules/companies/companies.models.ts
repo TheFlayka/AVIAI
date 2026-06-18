@@ -87,41 +87,51 @@ export const getCompanies = async (id: number) => {
   }
 }
 
-export const updateCompany = async (
-  userId: number,
-  companyId: number,
-  body: UpdateCompanyObject,
-) => {
+export const updateCompany = async (company: ICompany, id: number, body: UpdateCompanyObject) => {
   try {
-    const company = await prisma.company.findFirst({
-      where: {
-        id: companyId,
-        ownerId: userId,
-      },
-      omit: {
-        deletedAt: true,
+    // Check URL in body
+    if (body.yandexMapsUrl) {
+      try {
+        // Get url object from string
+        const urlObj = new URL(body.yandexMapsUrl.trim())
+
+        // Check Domain
+        const allowedDomains = ['yandex.uz', 'yandex.ru', 'yandex.kz', 'yandex.com', 'yandex.by']
+
+        let isStrictlyYandex = false
+        for (const domain of allowedDomains) {
+          if (urlObj.hostname === domain) {
+            isStrictlyYandex = true
+            break
+          }
+        }
+        if (!isStrictlyYandex || !urlObj.pathname.startsWith('/maps')) throw new Error()
+      } catch (error) {
+        return {
+          success: false,
+          status: 400,
+          message: 'Введен невалидный URL. Пожалуйста, укажите ссылку на yandex карты.',
+        } as const
+      }
+    }
+
+    await prisma.company.update({
+      where: { id, deletedAt: null },
+      data: {
+        ...body,
       },
     })
-
-    if (!company) {
-      return {
-        success: false,
-        status: 404,
-        message: 'Не удалось найти заведение',
-      } as const
-    }
 
     return {
       success: true,
       status: 200,
-      message: ' успешно получено',
-      data: company,
+      message: 'Заведение успешно обновлено',
     } as const
   } catch (error) {
     return {
       success: false,
       status: 500,
-      message: 'Ошибка при получении заведения',
+      message: 'Ошибка при обновлений заведения',
       error,
     } as const
   }
