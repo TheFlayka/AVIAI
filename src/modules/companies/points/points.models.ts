@@ -27,3 +27,39 @@ export const getPoints = async (id: number) => {
     } as const
   }
 }
+
+export const getPoint = async (compId: number, pointId: number) => {
+  try {
+    const points = await prisma.companyPoint.findFirst({
+      where: {
+        companyId: compId,
+        id: pointId,
+      },
+      omit: {
+        deletedAt: true,
+      },
+    })
+
+    if (!points) {
+      return {
+        success: false,
+        status: 404,
+        message: 'Не удалось найти точку заведения',
+      } as const
+    }
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Точка заведения успешно получены',
+      data: points,
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при получении точки заведения',
+      error,
+    } as const
+  }
+}

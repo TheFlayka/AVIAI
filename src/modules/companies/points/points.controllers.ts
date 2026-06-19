@@ -3,7 +3,7 @@ import { Context } from 'hono'
 
 // Queue
 import { createPointQueue } from './worker/points.queue'
-import { getPoints } from './points.models'
+import { getPoint, getPoints } from './points.models'
 
 export async function createPointsController(c: Context) {
   try {
@@ -25,6 +25,29 @@ export async function createPointsController(c: Context) {
 export async function getPointsController(c: Context) {
   try {
     const result = await getPoints(c.get('companyId'))
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Points] Error occurred while getting points:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при получений точек' }, 500)
+  }
+}
+
+export async function getPointController(c: Context) {
+  try {
+    const id = c.req.param('pointId')
+    if (!id) {
+      return c.json({ status: 400, success: false, message: 'Не введен id точки заведения' })
+    }
+    // Make it to Int
+    const companyIdNum = parseInt(id, 10)
+    if (isNaN(companyIdNum)) {
+      return c.json(
+        { success: false, status: 400, message: 'ID точки заведения должно быть числом' },
+        400,
+      )
+    }
+
+    const result = await getPoint(c.get('companyId'), companyIdNum)
     return c.json(result, result.status)
   } catch (error) {
     console.error('❌ [Points] Error occurred while importing points:', error)
