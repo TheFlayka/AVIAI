@@ -9,29 +9,20 @@ const googleGenAI = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY!,
 })
 
-// Getting the search query and user ID from command line arguments
-const searchQuery = process.argv[2]
-const userId = Number(process.argv[3])
-
-if (!searchQuery && !userId) {
-  console.error('❌ [Map Parser] Missing search query or user ID.')
-  process.exit(1)
-}
-
-async function parseMap() {
-  console.log(`[Map Parser] Starting parsing for user ${userId} with query: ${searchQuery}`)
+export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
+  console.log(`[Map Parser] Starting parsing with query: ${mapUrlSearchQuery}`)
 
   // Bun Webview
   await using view = new Bun.WebView({ backend: 'chrome' })
   try {
     // Validate the search query
-    if (typeof searchQuery !== 'string') {
+    if (typeof mapUrlSearchQuery !== 'string') {
       console.error('❌ [Map Parser] Invalid search query.')
-      process.exit(1)
+      return { success: false, status: 400, message: 'Формат URL неправильный' }
     }
 
     // Navigate to Maps Website with the search query
-    await view.navigate(searchQuery)
+    await view.navigate(mapUrlSearchQuery)
     await Bun.sleep(5000) // Wait for the page to load
     console.log(`[Map Parser] Page loaded, executing script to extract data...`)
 
@@ -125,7 +116,7 @@ async function parseMap() {
     const response: GenerateContentResponse = await googleGenAI.models.generateContent({
       model: 'gemini-3.5-flash',
       contents:
-        'Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: companyId(Int, now just set 1), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set to current time), deletedAt(DateTime, set null) and yandexId(String). Here is the HTML content: ' +
+        `Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: companyId(${companyId}), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set to current time), deletedAt(DateTime, set null) and yandexId(String). Here is the HTML content: ` +
         pageContent,
     })
 
@@ -156,11 +147,10 @@ async function parseMap() {
 
     // Close the WebView
     view.close()
-
-    return console.log('\n✅ [Map Parser] WebView closed, parsing completed successfully.')
+    console.log('\n✅ [Map Parser] WebView closed, parsing completed successfully.')
+    return { success: true, status: 201, message: 'Точки заведения успешно импортированы' }
   } catch (error) {
-    return console.error('❌ [Map Parser] Error parsing map:', error)
+    console.error('❌ [Map Parser] Error parsing map:', error)
+    return { success: true, status: 500, message: 'Ошибка при импортирований точек заведения' }
   }
 }
-
-parseMap()

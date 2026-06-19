@@ -31,7 +31,7 @@
     "paths": {
       "#lib/*": ["./src/lib/*"],
       "#modules/*": ["./src/modules/*"],
-      "#workers/*": ["./src/workers/*"],
+      "#scripts/*": ["./src/scripts/*"],
       "#shared/*": ["./src/shared/*"]
     }
   }
