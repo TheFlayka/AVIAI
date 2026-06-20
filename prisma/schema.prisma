@@ -20,6 +20,13 @@ model User {
   companies Company[]
 }
 
+enum ParsingStatus {
+  IDLE        
+  PROCESSING  
+  SUCCESS     
+  FAILED      
+}
+
 model Company {
   id Int @id @default(autoincrement()) 
   ownerId Int
@@ -29,6 +36,7 @@ model Company {
   yandexMapsUrl String
   createdAt DateTime @default(now())
   deletedAt DateTime?
+  statusParsingMaps ParsingStatus @default(IDLE)
   points CompanyPoint[]
 }
 

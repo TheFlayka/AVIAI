@@ -6,6 +6,8 @@ import type { HonoBase } from 'hono/hono-base'
 import usersRoutes from '#modules/users/users.routes'
 import companiesRoutes from '#modules/companies/companies.routes'
 
+import '#modules/companies/points/worker/points.worker'
+
 const app: HonoBase = new Hono()
 
 const port = 3000

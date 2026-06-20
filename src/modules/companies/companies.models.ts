@@ -165,7 +165,8 @@ export const recoveryCompany = async (id: number) => {
       where: { id },
     })
 
-    if (!check) return { success: false, status: 404, message: 'Не удалось найти заведение' } as const
+    if (!check)
+      return { success: false, status: 404, message: 'Не удалось найти заведение' } as const
 
     if (check.deletedAt === null) {
       return {
