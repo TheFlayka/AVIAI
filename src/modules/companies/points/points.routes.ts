@@ -3,13 +3,9 @@ import { Hono } from 'hono'
 const app = new Hono()
 
 // Controllers
-import {
-  createPointsController,
-  getPointController,
-  getPointsController,
-} from './points.controllers'
+import { syncPointsController, getPointController, getPointsController } from './points.controllers'
 
-app.post('/', createPointsController)
+app.post('/', syncPointsController)
 app.get('/', getPointsController)
 app.get('/:pointId', getPointController)
 

@@ -1,6 +1,3 @@
-// Prisma
-import { prisma } from '#lib/prisma'
-
 // Google GenAI
 import { GoogleGenAI } from '@google/genai'
 import type { GenerateContentResponse } from '@google/genai'
@@ -9,39 +6,31 @@ const googleGenAI = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY!,
 })
 
-export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
-  console.log(`[Map Parser] Starting parsing with query: ${mapUrlSearchQuery}`)
-
-  // Bun Webview
+export async function parseMap(mapUrlSearchQuery: string, companyId: number, jobId: number) {
+  console.log(`[Map Parser of Worker(Points) ${jobId}] Starting parsing`)
+  // Bun Webview for virtual browser
   await using view = new Bun.WebView({ backend: 'chrome' })
   try {
     // Validate the search query
     if (typeof mapUrlSearchQuery !== 'string') {
-      console.error('❌ [Map Parser] Invalid search query.')
+      console.error(`❌ [Map Parser of Worker(Points) ${jobId}] Invalid search query.`)
       return { success: false, status: 400, message: 'Формат URL неправильный' }
     }
 
-    // Navigate to Maps Website with the search query
+    // Navigate to Yandex maps Website with the search query
     await view.navigate(mapUrlSearchQuery)
     await Bun.sleep(5000) // Wait for the page to load
-    console.log(`[Map Parser] Page loaded, executing script to extract data...`)
 
-    // Scroll the page to load all cards
-    type ScrollResult =
-      | {
-          error: false
-          currentScroll: number
-          maxScroll: number
-          done: boolean
-        }
-      | {
-          error: true
-          msg: string
-        }
+    // Scroll function (we must to load all cards)
 
-    // Step counter for logging
-    let step = 1
+    // Interface for results
+    interface ScrollResult {
+      isBottomReached?: boolean
+      status: number
+      message: string
+    }
 
+    // While for scrolling to the bottom and every 400 pixels scroll-function stop to load cards
     while (true) {
       let scrollResult: ScrollResult
       try {
@@ -51,7 +40,7 @@ export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
             const container = document.querySelector('.scroll__container');
             
             if (!container) {
-              return { error: true, msg: "Контейнер .scroll__container не найден!" };
+              return { status: 404, message: "There is not a scroll__container" };
             }
             
             const scrollBefore = container.scrollTop;
@@ -66,46 +55,36 @@ export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
             const isBottomReached = (scrollBefore === scrollAfter) || (scrollAfter >= maxScrollPossible - 5);
 
             return {
-              error: false,
-              currentScroll: scrollAfter,
-              maxScroll: maxScrollPossible,
-              done: isBottomReached
+              status: 200,
+              isBottomReached: isBottomReached,
+              message: isBottomReached ? "Bottom is reached" : "Scroll function continue working"
             };
           })()
         `)) as ScrollResult
       } catch (evaluateError) {
-        console.error(`❌ [Map Parser] Error during step ${step}:`, evaluateError)
+        console.error(
+          `❌ [Map Parser of Worker(Points) ${jobId}] Error of scrolling function:`,
+          evaluateError,
+        )
         break
       }
 
-      // Handle errors from the scroll evaluation
-      if (scrollResult.error) {
-        console.error(`❌ [Map Parser] Error inside page: ${scrollResult.msg}`)
+      // If container disappear
+      if (scrollResult.status === 404) {
+        console.error(`❌ Error inside page: ${scrollResult.message}`)
         break
       }
 
-      console.log(
-        `[Step ${step}] Scroll position: ${scrollResult.currentScroll}px of ${scrollResult.maxScroll}px`,
-      )
-
-      // Check if we've reached the bottom of the list
-      if (scrollResult.done) {
-        console.log('🎉 [Map Parser] Success! We have scrolled to the bottom of the list.')
+      if (scrollResult.isBottomReached) {
+        console.log(`Scrolling function completed: ${scrollResult.message}`)
         break
       }
-
-      console.log('⏳ [Map Parser] Waiting 5 seconds for new cards to load...')
-      await Bun.sleep(5000)
-
-      step++
+      await Bun.sleep(5000) // again load all cards
     }
-
-    console.log('=== [Map Parser] SCROLLING COMPLETED, ALL CARDS LOADED ===\n')
 
     // Extract the page content after scrolling
     const pageContent = await view.evaluate(`
       (() => {
-        // Take the outer HTML of the list container that holds all the cards
         const listElement = document.querySelector('.search-list-view__list') 
                          || document.querySelector('.scroll__container');
                          
@@ -116,15 +95,20 @@ export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
     const response: GenerateContentResponse = await googleGenAI.models.generateContent({
       model: 'gemini-3.5-flash',
       contents:
-        `Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: companyId(${companyId}), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set to current time), deletedAt(DateTime, set null) and yandexId(String). Here is the HTML content: ` +
+        `Hi! Can you parse this HTML and create JSON without additional text? There the fields which you must create: companyId(${companyId}), name(String), address(String), lat(Float), lng(Float), workHours(String), createdAt(DateTime, set current time), deletedAt(DateTime, set null) and yandexId(String). Please make it always Array of cards. Here is the HTML content: ` +
         pageContent,
     })
 
     if (!response.text) {
-      throw new Error('🤖 [Map Parser] Error: Gemini returned an empty response or undefined!')
+      return {
+        success: false,
+        status: 400,
+        message: `❌ [Map Parser of Worker(Points) ${jobId}] Error: Gemini returned an empty response or undefined!`,
+      }
     }
 
     // Clean the response text to ensure it's valid JSON before parsing
+    let parsedData
     try {
       let cleanJsonString = response.text.trim()
 
@@ -135,22 +119,22 @@ export async function parseMap(mapUrlSearchQuery: string, companyId: number) {
           .trim()
       }
 
-      const parsedData = JSON.parse(cleanJsonString)
-
-      await prisma.companyPoint.createMany({
-        data: parsedData,
-        skipDuplicates: true,
-      })
+      parsedData = JSON.parse(cleanJsonString)
     } catch (error) {
-      console.error('❌ [Map Parser] Error parsing JSON:', error)
+      console.error(`❌ [Map Parser of Worker(Points) ${jobId}] Error parsing JSON:`, error)
     }
 
     // Close the WebView
     view.close()
-    console.log('\n✅ [Map Parser] WebView closed, parsing completed successfully.')
-    return { success: true, status: 201, message: 'Точки заведения успешно импортированы' }
+    console.log(`\n✅ [Map Parser of Worker(Points) ${jobId}] Parsing completed successfully.`)
+    return {
+      success: true,
+      status: 201,
+      message: 'Точки заведения успешно спарсены',
+      data: parsedData,
+    }
   } catch (error) {
-    console.error('❌ [Map Parser] Error parsing map:', error)
-    return { success: true, status: 500, message: 'Ошибка при импортирований точек заведения' }
+    console.error(`❌ [Map Parser of Worker(Points) ${jobId}]Error parsing map:`, error)
+    return { success: true, status: 500, message: 'Ошибка при парсинге точек заведения' }
   }
 }

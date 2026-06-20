@@ -2,4 +2,4 @@
 import { Queue } from 'bullmq'
 import { redisConfig } from '#lib/redis'
 
-export const createPointQueue = new Queue('createPoint', { connection: redisConfig })
+export const syncPointsQueue = new Queue('syncPoints', { connection: redisConfig })
