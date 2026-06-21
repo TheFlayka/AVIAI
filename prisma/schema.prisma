@@ -40,6 +40,13 @@ model Company {
   points CompanyPoint[]
 }
 
+enum ParsingReviewsStatus {     
+  IDLE
+  PROCESSING  
+  SUCCESS     
+  FAILED      
+}
+
 model CompanyPoint {
   id Int @id @default(autoincrement()) 
   companyId Int
@@ -52,7 +59,15 @@ model CompanyPoint {
   workHours String
   createdAt DateTime @default(now())
   deletedAt DateTime?
+  lastParseAt DateTime?
+  statusParsingReviews ParsingReviewsStatus @default(IDLE)
   reviews Review[]
+}
+
+enum ReviewStatus {     
+  WAITING  
+  SUCCESS     
+  FAILED      
 }
 
 model Review {
@@ -64,5 +79,5 @@ model Review {
   rating Int
   createdAt DateTime @default(now())
   aiAnswer String?
-  status String @default("pending")
+  status ReviewStatus @default(WAITING)
 }
