@@ -30,7 +30,7 @@ export const getPoints = async (id: number) => {
 
 export const getPoint = async (compId: number, pointId: number) => {
   try {
-    const points = await prisma.companyPoint.findFirst({
+    const point = await prisma.companyPoint.findFirst({
       where: {
         companyId: compId,
         id: pointId,
@@ -40,7 +40,7 @@ export const getPoint = async (compId: number, pointId: number) => {
       },
     })
 
-    if (!points) {
+    if (!point) {
       return {
         success: false,
         status: 404,
@@ -52,7 +52,7 @@ export const getPoint = async (compId: number, pointId: number) => {
       success: true,
       status: 200,
       message: 'Точка заведения успешно получены',
-      data: points,
+      data: point,
     } as const
   } catch (error) {
     return {

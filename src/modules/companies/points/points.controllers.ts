@@ -52,7 +52,7 @@ export async function getPointController(c: Context) {
     const result = await getPoint(c.get('companyId'), companyIdNum)
     return c.json(result, result.status)
   } catch (error) {
-    console.error('❌ [Points] Error occurred while importing points:', error)
-    return c.json({ status: 500, success: false, message: 'Ошибка при импорте точек' }, 500)
+    console.error('❌ [Points] Error occurred while getting point:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при получении точки' }, 500)
   }
 }

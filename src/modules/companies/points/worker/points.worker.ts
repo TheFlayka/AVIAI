@@ -5,7 +5,7 @@ import { redisConfig } from '#lib/redis'
 // Prisma
 import { prisma } from '#lib/prisma'
 
-// Parser Function
+// Parser map Function
 import { parseMap } from '#scripts/map_parser'
 
 // Types
@@ -83,10 +83,10 @@ const syncPointsWorker = new Worker(
           data: { statusParsingMaps: 'SUCCESS' },
         }),
       ])
-      console.log(`[Map Parser Worker ${intJobId}] Sync data is done`)
+      console.log(`[Sync points Worker ${intJobId}] Sync data is done`)
     } catch (error) {
       console.error(
-        `❌ [Map Parser Worker ${intJobId}] Error occurred while parsing points:`,
+        `❌ [Sync points Worker ${intJobId}] Error occurred while syncing points:`,
         error,
       )
       throw error
