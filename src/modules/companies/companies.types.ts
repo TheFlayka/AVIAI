@@ -1,6 +1,5 @@
 export interface IBaseCompany {
   name: string
-  description: string
   yandexMapsUrl: string
 }
 

@@ -10,10 +10,6 @@ app.use('/*', authMiddleware)
 import { findCompanyMiddleware } from './companies.middlewares'
 app.use('/:id/*', findCompanyMiddleware)
 
-// Points routes
-import pointsRoutes from './points/points.routes'
-app.route('/:id/points', pointsRoutes)
-
 // Schemas
 import { companySchema, optionalCompanySchema } from './companies.validations'
 
@@ -27,6 +23,9 @@ import {
   updateCompanyController,
 } from './companies.controllers'
 
+// Points routes
+import pointsRoutes from './points/points.routes'
+app.route('/:id/points', pointsRoutes)
 // Companies Routes
 app.post('/', sValidator('json', companySchema), createCompanyController)
 app.get('/', getCompaniesController)
