@@ -1,4 +1,4 @@
-// Hono
+// Hono(Middleware types, jwt functions and cookie function)
 import { Context, type Next } from 'hono'
 import { verify, decode } from 'hono/jwt'
 import { getCookie } from 'hono/cookie'
@@ -42,11 +42,7 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
     }
 
     // Check if JWT_SECRET is defined in environment variables
-    const secret = process.env.JWT_SECRET
-    if (!secret) {
-      console.error('❌ [CRITICAL] JWT_SECRET not found in environment variables')
-      return c.json({ success: false, message: 'Ошибка конфигурации сервера' }, 500)
-    }
+    const secret = process.env.JWT_SECRET as string
 
     // Verify JWT Token
     await verify(token, secret, 'HS256')

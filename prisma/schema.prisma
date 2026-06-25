@@ -7,6 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
+// Simple User Model Schema
 model User {
   id Int @id @default(autoincrement()) 
   username String @unique
@@ -20,6 +21,7 @@ model User {
   companies Company[]
 }
 
+// Company model with status of parsing maps
 enum ParsingStatus {
   IDLE        
   PROCESSING  
@@ -31,7 +33,6 @@ model Company {
   id Int @id @default(autoincrement()) 
   ownerId Int
   user User @relation(fields: [ownerId], references: [id])
-  description String
   name String
   yandexMapsUrl String
   createdAt DateTime @default(now())
@@ -40,6 +41,7 @@ model Company {
   points CompanyPoint[]
 }
 
+// Company Point model with status of parsing reviews page
 enum ParsingReviewsStatus {     
   IDLE
   PROCESSING  
@@ -54,9 +56,6 @@ model CompanyPoint {
   yandexId String @unique
   name String
   address String
-  lat Float?
-  lng Float?
-  workHours String
   createdAt DateTime @default(now())
   deletedAt DateTime?
   lastParseAt DateTime?
@@ -64,7 +63,8 @@ model CompanyPoint {
   reviews Review[]
 }
 
-enum ReviewStatus {     
+// Review model with status of writing answer for
+enum ReviewStatus {
   WAITING  
   SUCCESS     
   FAILED      
@@ -74,10 +74,10 @@ model Review {
   id Int @id @default(autoincrement()) 
   companyPointId Int
   companyPoint CompanyPoint @relation(fields: [companyPointId], references: [id])
-  usernameOfReviewer String
-  text String
+  reviewerName String
+  content String
   rating Int
-  createdAt DateTime @default(now())
+  createdAt DateTime
   aiAnswer String?
-  status ReviewStatus @default(WAITING)
+  statusWritingAnswer ReviewStatus @default(WAITING)
 }

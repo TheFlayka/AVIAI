@@ -1,3 +1,4 @@
+// Configurations of Redis(Port, host and option for bullmq)
 const REDIS_HOST = process.env.REDIS_HOST
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379', 10)
 
