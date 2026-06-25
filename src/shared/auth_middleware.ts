@@ -42,7 +42,7 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
     }
 
     // Check if JWT_SECRET is defined in environment variables
-    const secret = process.env.JWT_SECRET as string
+    const secret = Bun.env.JWT_SECRET as string
 
     // Verify JWT Token
     await verify(token, secret, 'HS256')
@@ -62,11 +62,12 @@ export async function authMiddleware(c: Context<AuthEnv>, next: Next) {
 
     if (!user) {
       return c.json(
-        { success: false, status: 401, message: 'Пользователь не найден или деактивирован' },
-        401,
+        { success: false, status: 404, message: 'Пользователь не найден или деактивирован' },
+        404,
       )
     }
 
+    // Set data to use it in controllers
     c.set('userId', user.id)
     c.set('user', user)
 
