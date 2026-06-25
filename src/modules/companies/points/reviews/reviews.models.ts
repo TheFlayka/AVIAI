@@ -1,5 +1,7 @@
+// Prisma
 import { prisma } from '#lib/prisma'
 
+// Queue
 import { parsingReviewsQueue } from './worker/reviews.queue'
 
 export const parseReviews = async (compId: number, pointId: number) => {
@@ -27,13 +29,13 @@ export const parseReviews = async (compId: number, pointId: number) => {
     return {
       success: true,
       status: 202,
-      message: 'Запрос на парсинг отзывов принят!',
+      message: 'Запрос на создание ответов на отзывы принят!',
     } as const
   } catch (error) {
     return {
       success: false,
       status: 500,
-      message: 'Ошибка при создании задачи парсинга отзывов',
+      message: 'Ошибка при создании задачи создание ответов на отзывы',
       error,
     } as const
   }

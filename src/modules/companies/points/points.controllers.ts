@@ -38,7 +38,7 @@ export async function getPointController(c: Context) {
   try {
     const id = c.req.param('pointId')
     if (!id) {
-      return c.json({ status: 400, success: false, message: 'Не введен id точки заведения' })
+      return c.json({ status: 400, success: false, message: 'Не введен id точки заведения' }, 400)
     }
     // Make it to Int
     const companyIdNum = parseInt(id, 10)

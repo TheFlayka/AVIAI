@@ -4,7 +4,11 @@ import { redisConfig } from '#lib/redis'
 
 // Prisma
 import { prisma } from '#lib/prisma'
+
+// Parse function
 import { parseReviews } from '#scripts/map_parser'
+
+// Types
 import type { IReview } from '../reviews.types'
 
 // Google GenAI
@@ -18,8 +22,6 @@ const googleGenAI = new GoogleGenAI({
 export const parsingReviewWorker = new Worker(
   'parsingReviews',
   async (job: Job) => {
-    console.log('[Review Worker] Started')
-
     // Get necessary data from job
     const { yandexId, pointId } = job.data
 
@@ -58,7 +60,7 @@ export const parsingReviewWorker = new Worker(
           where: { id: pointId },
           data: { statusParsingReviews: 'FAILED' },
         })
-        throw new Error('We do not find a point in Database')
+        throw new Error('We do not find the point in Database')
       }
 
       // remove reviews which is earlier than lastParseAt
@@ -89,7 +91,7 @@ export const parsingReviewWorker = new Worker(
       ])
     } catch (error) {
       console.error(
-        `❌ [Review Parser Worker ${intJobId}] Error occurred while parsing points:`,
+        `❌ [Review Worker ${intJobId}] Error occurred while parsing reviews page:`,
         error,
       )
       throw error
@@ -103,8 +105,6 @@ export const parsingReviewWorker = new Worker(
 export const answerReviewWorker = new Worker(
   'answerReviews',
   async (job: Job) => {
-    console.log('[Review Worker(Answer)] Started')
-
     // Get necessary data from job
     const { pointId } = job.data
 
@@ -119,7 +119,7 @@ export const answerReviewWorker = new Worker(
     }
     try {
       const reviews = await prisma.review.findMany({
-        where: { companyPointId: pointId, status: 'WAITING' },
+        where: { companyPointId: pointId, status: { in: ['WAITING', 'FAILED'] } },
       })
 
       for (const review of reviews) {
@@ -127,31 +127,32 @@ export const answerReviewWorker = new Worker(
           model: 'gemini-3.5-flash',
           contents:
             `Hello! Please, can you write answer for review, and be sure that: language is the same as used in review, you are good and don't say nothing bad for reviewer. Just write an answer without additional text. Thank you! Review: ` +
-            review.text,
+            review.content,
         })
 
         if (!responseFromAi.text) {
+          console.log(`⚠️ [Answer Worker ${intJobId}] AI doesn't answer review`)
           await prisma.review.update({
             where: review,
-            data: { aiAnswer: "CRITICAL!!!, AI DOESN'T ANSWER ON THE TEXT!!!" },
+            data: {
+              aiAnswer: "CRITICAL!!!, AI DOESN'T ANSWER ON THE TEXT!!!",
+              statusWritingAnswer: 'FAILED',
+            },
           })
+          await new Promise((resolve) => setTimeout(resolve, 10000))
+          continue
         }
 
         await prisma.review.update({
           where: review,
-          data: { aiAnswer: responseFromAi.text },
+          data: { aiAnswer: responseFromAi.text, statusWritingAnswer: 'SUCCESS' },
         })
-        console.log('Review answer is done')
-
         await new Promise((resolve) => setTimeout(resolve, 10000))
       }
 
-      console.log('[Review Worker] Answers have written!')
+      console.log('[Answer Worker] Answers have written!')
     } catch (error) {
-      console.error(
-        `❌ [Review Parser Worker ${intJobId}] Error occurred while parsing points:`,
-        error,
-      )
+      console.error(`❌ [Answer Worker ${intJobId}] Error occurred while answering reviews:`, error)
       throw error
     }
   },

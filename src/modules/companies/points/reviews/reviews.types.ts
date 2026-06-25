@@ -1,8 +1,8 @@
 export interface IReview {
   id: number
   companyPointId: number
-  usernameOfReviewer: string
-  text: string
+  reviewerName: string
+  content: string
   rating: number
   createdAt: Date
   aiAnswer: string
