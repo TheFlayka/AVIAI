@@ -80,3 +80,20 @@ export async function getReviewsController(c: Context) {
     )
   }
 }
+
+export async function getReviewController(c: Context) {
+  try {
+    return c.json({
+      success: true,
+      status: 200,
+      message: 'Отзыв найден и получен',
+      data: c.get('review'),
+    })
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while getting reviews:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при получении всех отзывов' },
+      500,
+    )
+  }
+}
