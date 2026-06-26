@@ -40,3 +40,27 @@ export const parseReviews = async (compId: number, pointId: number) => {
     } as const
   }
 }
+
+export const getReviews = async (pointId: number) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        companyPointId: pointId,
+      },
+    })
+
+    return {
+      success: true,
+      status: 200,
+      message: 'Все отзывы успешно получены',
+      data: reviews,
+    } as const
+  } catch (error) {
+    return {
+      success: false,
+      status: 500,
+      message: 'Ошибка при получении всех отзывов',
+      error,
+    } as const
+  }
+}

@@ -82,7 +82,7 @@ export const parsingReviewWorker = new Worker(
 
       await prisma.$transaction([
         prisma.review.createMany({
-          data: result.data,
+          data: reviewsToSave,
         }),
         prisma.companyPoint.update({
           where: { id: pointId },
@@ -123,7 +123,7 @@ export const answerReviewWorker = new Worker(
       })
 
       for (const review of reviews) {
-        const responseFromAi = await googleGenAI.models.generateContent({
+        const responseFromAi: GenerateContentResponse = await googleGenAI.models.generateContent({
           model: 'gemini-3.5-flash',
           contents:
             `Hello! Please, can you write answer for review, and be sure that: language is the same as used in review, you are good and don't say nothing bad for reviewer. Just write an answer without additional text. Thank you! Review: ` +

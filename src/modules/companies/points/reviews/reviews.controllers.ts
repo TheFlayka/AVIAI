@@ -5,7 +5,7 @@ import { Context } from 'hono'
 import { answerReviewsQueue } from './worker/reviews.queue'
 
 // Models
-import { parseReviews } from './reviews.models'
+import { getReviews, parseReviews } from './reviews.models'
 
 export async function parseReviewsControllers(c: Context) {
   try {
@@ -54,6 +54,28 @@ export async function answerReviewsController(c: Context) {
     console.error('❌ [Review] Error occurred while creating a job for answering review:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при принятии написание ответов на отзывы' },
+      500,
+    )
+  }
+}
+
+export async function getReviewsController(c: Context) {
+  try {
+    const pointId = c.req.param('pointId')
+    if (!pointId) {
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
+    }
+    const intPointId = parseInt(pointId, 10)
+    if (isNaN(intPointId)) {
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
+    }
+
+    const result = await getReviews(intPointId)
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while getting reviews:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при получении всех отзывов' },
       500,
     )
   }

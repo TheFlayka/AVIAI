@@ -175,7 +175,7 @@ export async function parseReviews(yandexId: string, pointId: number, jobId: num
 
         await new Promise((resolve) => setTimeout(resolve, 2000))
         return { success: true, status: 200, message: 'Сортировка изменена' }
-      })(),
+      })()
     `)
     if (resultOfSort.status === 404) return resultOfSort
 
@@ -235,7 +235,7 @@ export async function parseReviews(yandexId: string, pointId: number, jobId: num
         break
       }
 
-      if (step === 3) {
+      if (step === 1) {
         console.log(`[Review Parser, Worker ${jobId}] Scrolling function completed`)
         break
       }
