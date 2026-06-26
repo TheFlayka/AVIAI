@@ -5,7 +5,7 @@ import { Context } from 'hono'
 import { answerReviewsQueue } from './worker/reviews.queue'
 
 // Models
-import { getReviews, parseReviews } from './reviews.models'
+import { changeReview, getReviews, parseReviews } from './reviews.models'
 
 export async function parseReviewsControllers(c: Context) {
   try {
@@ -90,9 +90,28 @@ export async function getReviewController(c: Context) {
       data: c.get('review'),
     })
   } catch (error) {
-    console.error('❌ [Review] Error occurred while getting reviews:', error)
+    console.error('❌ [Review] Error occurred while getting review:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при получении отзыва' }, 500)
+  }
+}
+
+export async function changeReviewController(c: Context) {
+  try {
+    const pointId = c.req.param('pointId')
+    if (!pointId) {
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
+    }
+    const intPointId = parseInt(pointId, 10)
+    if (isNaN(intPointId)) {
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
+    }
+
+    const result = await changeReview(c.get('reviewId'), intPointId, await c.req.json())
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while changing answer of review:', error)
     return c.json(
-      { status: 500, success: false, message: 'Ошибка при получении всех отзывов' },
+      { status: 500, success: false, message: 'Ошибка при изменении ответа отзыва' },
       500,
     )
   }

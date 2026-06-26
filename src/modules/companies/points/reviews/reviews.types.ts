@@ -7,3 +7,7 @@ export interface IReview {
   createdAt: Date
   aiAnswer: string
 }
+
+export interface IAnswer {
+  aiAnswer: string
+}
