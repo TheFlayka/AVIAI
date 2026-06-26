@@ -1,26 +1,32 @@
 // Hono
 import { Context } from 'hono'
 
-import { parseReviews } from './reviews.models'
+// Queue
 import { answerReviewsQueue } from './worker/reviews.queue'
+
+// Models
+import { changeReview, getReviews, parseReviews } from './reviews.models'
 
 export async function parseReviewsControllers(c: Context) {
   try {
     const pointId = c.req.param('pointId')
     if (!pointId) {
-      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 500)
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
     }
     const intPointId = parseInt(pointId, 10)
     if (isNaN(intPointId)) {
-      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 500)
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
     }
 
     const result = await parseReviews(c.get('companyId'), intPointId)
 
     return c.json(result, result.status)
   } catch (error) {
-    console.error('❌ [Company] Error occurred while getting company:', error)
-    return c.json({ status: 500, success: false, message: 'Ошибка при парсинге отзывов' }, 500)
+    console.error('❌ [Review] Error occurred while creating a job for parsing reviews:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при принятии парсинга отзывов' },
+      500,
+    )
   }
 }
 
@@ -28,14 +34,14 @@ export async function answerReviewsController(c: Context) {
   try {
     const pointId = c.req.param('pointId')
     if (!pointId) {
-      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 500)
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
     }
     const intPointId = parseInt(pointId, 10)
     if (isNaN(intPointId)) {
-      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 500)
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
     }
 
-    await answerReviewsQueue.add('answer', {
+    await answerReviewsQueue.add('answer_review', {
       pointId: intPointId,
     })
 
@@ -45,7 +51,68 @@ export async function answerReviewsController(c: Context) {
       message: 'Запрос на написание ответов успешно принят!',
     })
   } catch (error) {
-    console.error('❌ [Company] Error occurred while getting company:', error)
-    return c.json({ status: 500, success: false, message: 'Ошибка при парсинге отзывов' }, 500)
+    console.error('❌ [Review] Error occurred while creating a job for answering review:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при принятии написание ответов на отзывы' },
+      500,
+    )
+  }
+}
+
+export async function getReviewsController(c: Context) {
+  try {
+    const pointId = c.req.param('pointId')
+    if (!pointId) {
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
+    }
+    const intPointId = parseInt(pointId, 10)
+    if (isNaN(intPointId)) {
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
+    }
+
+    const result = await getReviews(intPointId)
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while getting reviews:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при получении всех отзывов' },
+      500,
+    )
+  }
+}
+
+export async function getReviewController(c: Context) {
+  try {
+    return c.json({
+      success: true,
+      status: 200,
+      message: 'Отзыв найден и получен',
+      data: c.get('review'),
+    })
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while getting review:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при получении отзыва' }, 500)
+  }
+}
+
+export async function changeReviewController(c: Context) {
+  try {
+    const pointId = c.req.param('pointId')
+    if (!pointId) {
+      return c.json({ status: 400, success: false, message: 'Не найдено id точки' }, 400)
+    }
+    const intPointId = parseInt(pointId, 10)
+    if (isNaN(intPointId)) {
+      return c.json({ status: 400, success: false, message: 'ID точки неправильного формата' }, 400)
+    }
+
+    const result = await changeReview(c.get('reviewId'), intPointId, await c.req.json())
+    return c.json(result, result.status)
+  } catch (error) {
+    console.error('❌ [Review] Error occurred while changing answer of review:', error)
+    return c.json(
+      { status: 500, success: false, message: 'Ошибка при изменении ответа отзыва' },
+      500,
+    )
   }
 }

@@ -38,7 +38,7 @@ export async function getPointController(c: Context) {
   try {
     const id = c.req.param('pointId')
     if (!id) {
-      return c.json({ status: 400, success: false, message: 'Не введен id точки заведения' })
+      return c.json({ status: 400, success: false, message: 'Не введен id точки заведения' }, 400)
     }
     // Make it to Int
     const companyIdNum = parseInt(id, 10)
@@ -52,7 +52,7 @@ export async function getPointController(c: Context) {
     const result = await getPoint(c.get('companyId'), companyIdNum)
     return c.json(result, result.status)
   } catch (error) {
-    console.error('❌ [Points] Error occurred while importing points:', error)
-    return c.json({ status: 500, success: false, message: 'Ошибка при импорте точек' }, 500)
+    console.error('❌ [Points] Error occurred while getting point:', error)
+    return c.json({ status: 500, success: false, message: 'Ошибка при получении точки' }, 500)
   }
 }

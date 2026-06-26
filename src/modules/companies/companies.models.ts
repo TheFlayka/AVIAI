@@ -164,7 +164,6 @@ export const recoveryCompany = async (id: number) => {
     const check = await prisma.company.findFirst({
       where: { id },
     })
-
     if (!check)
       return { success: false, status: 404, message: 'Не удалось найти заведение' } as const
 

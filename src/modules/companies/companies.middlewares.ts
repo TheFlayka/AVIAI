@@ -6,9 +6,8 @@ import { prisma } from '#lib/prisma'
 
 export async function findCompanyMiddleware(c: Context, next: Next) {
   try {
-    // Get ID of company
+    // ID(get, check, int)
     const id = c.req.param('id')
-
     if (!id) {
       return c.json(
         {
@@ -28,14 +27,14 @@ export async function findCompanyMiddleware(c: Context, next: Next) {
       )
     }
 
-    // Exclude recovery endpoint from recovering
+    // Exclude endpoint
     const path = c.req.path
-
     if (path.includes('recovery')) {
       c.set('companyId', companyIdNum)
       return await next()
     }
 
+    // Find company in DB
     const company = await prisma.company.findFirst({
       where: {
         id: companyIdNum,
@@ -46,7 +45,6 @@ export async function findCompanyMiddleware(c: Context, next: Next) {
         deletedAt: true,
       },
     })
-
     if (!company) {
       return c.json(
         {

@@ -1,6 +1,7 @@
 import * as v from 'valibot'
 
-export const loginSchema = v.object({
+// Base schema of user object
+export const baseSchema = v.object({
   username: v.pipe(
     v.string('Логин неправильного формата'),
     v.minLength(3, 'Минимальная длина логина 3'),
@@ -13,14 +14,16 @@ export const loginSchema = v.object({
   ),
 })
 
+// For registration
 export const registrationSchema = v.object({
-  ...loginSchema.entries,
+  ...baseSchema.entries,
   name: v.pipe(v.string('Имя неправильного формата'), v.nonEmpty('Имя не может быть пустым')),
   surname: v.optional(v.string('Фамилия неправильного формата')),
 })
-
+// Only for update object
 export const optionalUserSchema = v.partial(registrationSchema)
 
+// Password object only
 export const passwordSchema = v.object({
   oldPassword: v.pipe(
     v.string('Старый пароль неправильного формата'),

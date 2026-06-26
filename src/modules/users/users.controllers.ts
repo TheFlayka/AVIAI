@@ -57,7 +57,7 @@ export async function loginUserController(c: Context<AuthEnv>) {
     const { data, ...resultDone } = result
     return c.json(resultDone, result.status)
   } catch (error) {
-    console.error('❌ [Users] Error occurred while logging in user:', error)
+    console.error('❌ [Users] Error occurred while logging user:', error)
     return c.json(
       { status: 500, success: false, message: 'Ошибка при авторизаций пользователя', data: error },
       500,
