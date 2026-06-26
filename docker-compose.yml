@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Postgres
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: aviai_postgres
+    restart: always
+    environment: # Space fields
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: 
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # I use WSL so you must to correct this field
+
+  # Redis
+  redis_queue:
+    image: redis:7-alpine
+    container_name: aviai_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
