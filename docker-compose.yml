@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data # I use WSL so you must to correct this field
+      - postgres_data:/var/lib/postgresql/data
 
   # Redis
   redis_queue:
